@@ -13,20 +13,27 @@ import pandas as pd
 
 def limpiar_titulos(df):
     """
-    Estandariza los títulos de las columnas:
-    - Todo a minúsculas.
-    - Reemplaza puntos (.) y espacios ( ) por guiones bajos (_).
+    Estandariza los nombres de las columnas:
+    1. Todo a minúsculas.
+    2. Reemplaza espacios por guiones bajos (_).
+    3. Reemplaza puntos (.) por guiones bajos (_).
     """
-    df.columns = df.columns.str.lower().str.replace('.', '_').str.replace(' ', '_')
-    print("✅ Títulos de columnas estandarizados.")
+    df.columns = (
+        df.columns
+        .str.lower()
+        .str.replace(' ', '_')
+        .str.replace('.', '_', regex=False)
+    )
+    print("✅ Nombres de columnas estandarizados.")
+    return df
 
 
 def limpiar_texto(df, columnas_a_ignorar=[]):
     """
     Estandariza columnas de texto:
     - Pone todo en minúsculas.
-    - Cambia espacios y puntos por guiones bajos.
-    - Cambia la 'ñ' por 'n' (para evitar problemas de codificación).
+    - Cambia espacios, puntos y guiones medios por guiones bajos.
+    - Cambia la 'ñ' por 'n'.
     
     Parámetros:
     - columnas_a_ignorar: Lista de columnas que NO queremos tocar (ej: IDs).
@@ -47,10 +54,12 @@ def limpiar_texto(df, columnas_a_ignorar=[]):
             df[col] = df[col].str.replace(' ', '_')
             # 3. Puntos -> guiones bajos
             df[col] = df[col].str.replace('.', '_', regex=False)
-            # 4. Ñ -> n (Regla de oro)
+            # 4. Guiones medios -> guiones bajos (NUEVO)
+            df[col] = df[col].str.replace('-', '_', regex=False)
+            # 5. Ñ -> n (Regla de oro)
             df[col] = df[col].str.replace('ñ', 'n')
             
-    print("✅ Textos estandarizados (sin ñ).")
+    print("✅ Textos estandarizados (sin ñ, espacios, puntos ni guiones).")
 
 # -------------------------------------------------------------------------
 # 2. GESTIÓN DE COLUMNAS Y VALORES
