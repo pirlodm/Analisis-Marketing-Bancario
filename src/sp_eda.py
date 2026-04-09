@@ -1,17 +1,18 @@
 # -------------------------------------------------------------------------
 # MÓDULO DE EXPLORACIÓN DE DATOS (sp_eda.py)
 # -------------------------------------------------------------------------
-# Descripción: Funciones para el análisis exploratorio preliminar (EDA)
-#              de DataFrames antes de comenzar la limpieza.
+# Descripción: He creado este módulo para no tener que repetir siempre
+#              los mismos pasos al empezar a analizar un DataFrame.
+#              Con una sola función, me da una visión general de todo.
 # -------------------------------------------------------------------------
 
 import pandas as pd
-from IPython.display import display  # Necesario para usar display() en archivos .py
+from IPython.display import display  # Lo importo para que las tablas se vean bonitas en el notebook.
 
 def eda_preliminar(df):
     """
-    Realiza una auditoría básica de un DataFrame.
-    Muestra:
+    Función que he programado para hacer una auditoría completa de un DataFrame.
+    Me muestra todo lo que necesito saber al principio:
     1. Una muestra aleatoria.
     2. Dimensiones (filas y columnas).
     3. Información técnica (tipos de datos).
@@ -45,11 +46,13 @@ def eda_preliminar(df):
     # 4. VALORES NULOS
     # ---------------------------------------------------------------------
     print("\n--- 4. NULOS ---")
+    # Calculo el porcentaje de nulos. Uso .mean() porque al tratar True/False como 1/0,
+    # la media me da directamente la proporción, que es más útil que una suma.
     nulos_pct = df.isnull().mean() * 100
     
     if nulos_pct.sum() > 0:
         # Mostramos solo las columnas que tienen nulos, ordenadas de mayor a menor
-        display(nulos_pct[nulos_pct > 0].sort_values(ascending=False))
+        display(nulos_pct[nulos_pct > 0].sort_values(ascending=False).to_frame('% Nulos'))
     else:
         print("✅ ¡Perfecto! No hay valores nulos.")
 
@@ -68,7 +71,8 @@ def eda_preliminar(df):
     # 6. ESTADÍSTICAS NUMÉRICAS
     # ---------------------------------------------------------------------
     print("\n--- 6. ESTADÍSTICAS NUMÉRICAS ---")
-    # Filtramos solo las columnas numéricas
+    # Uso select_dtypes para aplicar el describe() solo a las columnas que son
+    # numéricas y evitar errores con las de texto.
     cols_num = df.select_dtypes(include=['number']).columns
     
     if len(cols_num) > 0:
@@ -80,6 +84,8 @@ def eda_preliminar(df):
     # 7. COLUMNAS DE TEXTO (CATEGÓRICAS)
     # ---------------------------------------------------------------------
     print("\n--- 7. COLUMNAS DE TEXTO (Top 10 valores) ---")
+    # Hago lo mismo que con las numéricas, pero para las de tipo 'object' (texto),
+    # que son las que puedo analizar por categorías.
     cols_texto = df.select_dtypes(include='object').columns
     
     if len(cols_texto) > 0:
@@ -90,13 +96,13 @@ def eda_preliminar(df):
             # Título explicativo
             print(f"\n-> Columna: {col.upper()} (Total únicos: {num_unicos})")
             
-            # CREAMOS UNA TABLA BONITA PARA MOSTRARLO
-            # 1. Sacamos los valores más frecuentes
+            # Para que la salida sea más clara, creo una tabla con los valores más frecuentes.
+            # 1. Cuento los valores y me quedo con los 10 primeros.
             top_valores = df[col].value_counts().head(10).reset_index()
-            # 2. Le ponemos nombres a las cabeceras para que se entienda mejor
+            # 2. Renombro las columnas para que se entienda qué es cada cosa.
             top_valores.columns = ['Valor', 'Frecuencia']
             
-            # 3. Usamos display para que se vea como tabla
+            # 3. Uso display() para que Jupyter lo muestre como una tabla HTML.
             display(top_valores)
             
             # Nota informativa si hay muchos valores ocultos

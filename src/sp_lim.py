@@ -1,8 +1,8 @@
 # -------------------------------------------------------------------------
 # MÓDULO DE LIMPIEZA DE DATOS (sp_lim.py)
 # -------------------------------------------------------------------------
-# 
-# Descripción: Funciones reutilizables para limpieza y estandarización de DataFrames.
+# Descripción: He agrupado aquí todas las funciones que he ido creando para
+#              limpiar y estandarizar los datos. Así no tengo que reescribirlas.
 # -------------------------------------------------------------------------
 
 import pandas as pd
@@ -13,10 +13,10 @@ import pandas as pd
 
 def limpiar_titulos(df):
     """
-    Estandariza los nombres de las columnas:
-    1. Todo a minúsculas.
-    2. Reemplaza espacios por guiones bajos (_).
-    3. Reemplaza puntos (.) por guiones bajos (_).
+    Esta función la hice para estandarizar los nombres de las columnas.
+    Así evito problemas con mayúsculas, espacios o puntos. Lo paso todo
+    a minúsculas y uso guiones bajos, que es una buena práctica en Python
+    (formato snake_case).
     """
     df.columns = (
         df.columns
@@ -30,13 +30,14 @@ def limpiar_titulos(df):
 
 def limpiar_texto(df, columnas_a_ignorar=[]):
     """
-    Estandariza columnas de texto:
-    - Pone todo en minúsculas.
-    - Cambia espacios, puntos y guiones medios por guiones bajos.
-    - Cambia la 'ñ' por 'n'.
+    Esta función recorre todas las columnas de texto y las normaliza.
+    La idea es que 'blue-collar' y 'Blue Collar' se traten como lo mismo.
+    También quito la 'ñ' para evitar problemas de codificación (encoding)
+    si luego exporto los datos.
     
     Parámetros:
-    - columnas_a_ignorar: Lista de columnas que NO queremos tocar (ej: IDs).
+    - columnas_a_ignorar: Le añadí este parámetro para poder saltarme
+      columnas que no quiero modificar, como por ejemplo un ID.
     """
     # Seleccionamos solo las columnas de tipo texto (object)
     cols_texto = df.select_dtypes(include='object').columns
@@ -67,8 +68,9 @@ def limpiar_texto(df, columnas_a_ignorar=[]):
 
 def cambiar_nombres(df, nombres_nuevos):
     """
-    Renombra columnas específicas.
-    Uso: cambiar_nombres(df, {'id_': 'ID', 'age': 'edad'})
+    Una función simple para renombrar columnas. La hice para que el código
+    principal quede más limpio y sea más legible.
+    Ejemplo de uso: cambiar_nombres(df, {'id_': 'ID', 'age': 'edad'})
     """
     df.rename(columns=nombres_nuevos, inplace=True)
     print(f"✅ Se han renombrado las columnas: {list(nombres_nuevos.keys())}")
@@ -76,8 +78,8 @@ def cambiar_nombres(df, nombres_nuevos):
 
 def reemplazar_valor(df, columna, valor_antiguo, valor_nuevo):
     """
-    Busca un valor específico en una columna y lo cambia por otro.
-    Ideal para cambiar 'unknown' por 'desconocido'.
+    La uso para corregir valores específicos. Por ejemplo, para traducir
+    'unknown' a 'desconocido' y que todo el dataset esté en el mismo idioma.
     """
     if columna in df.columns:
         # Contamos cuántos hay antes de cambiarlo para informar
@@ -93,8 +95,9 @@ def reemplazar_valor(df, columna, valor_antiguo, valor_nuevo):
 
 def eliminar_columnas(df, columnas_a_borrar):
     """
-    Elimina las columnas indicadas.
-    Uso: eliminar_columnas(df, ['unnamed:_0', 'columna_basura'])
+    Función para quitar columnas que no aportan información.
+    Le puse 'errors='ignore'' para que el script no se rompa si
+    intento borrar una columna que ya no existe.
     """
     # errors='ignore' evita que el código falle si la columna ya no existe
     df.drop(columns=columnas_a_borrar, inplace=True, errors='ignore')
@@ -104,7 +107,8 @@ def eliminar_columnas(df, columnas_a_borrar):
 
 def eliminar_duplicados(df):
     """
-    Busca filas totalmente repetidas y las borra, dejando solo una.
+    Busca filas que sean exactamente iguales y las elimina.
+    Esto es clave para asegurar la calidad del dato.
     """
     num_duplicados = df.duplicated().sum()
     if num_duplicados > 0:
@@ -119,9 +123,10 @@ def eliminar_duplicados(df):
 
 def arreglar_fecha(df, columna):
     """
-    Convierte fechas de texto español (ej: '1-mayo-2016') a formato fecha real.
+    Me encontré con que las fechas venían como texto con el mes en español
+    (ej: '1-mayo-2016'). Esta función traduce el mes a número y luego
+    convierte toda la columna a un formato de fecha real (datetime).
     """
-    # Diccionario de traducción
     meses = {
         'enero': '01', 'febrero': '02', 'marzo': '03', 'abril': '04',
         'mayo': '05', 'junio': '06', 'julio': '07', 'agosto': '08',
@@ -129,11 +134,13 @@ def arreglar_fecha(df, columna):
     }
 
     if columna in df.columns:
-        # Reemplazamos el texto del mes por su número
+        # Itero sobre el diccionario para reemplazar el nombre del mes por su número.
         for mes_nombre, mes_numero in meses.items():
             df[columna] = df[columna].str.replace(mes_nombre, mes_numero)
 
-        # Convertimos a formato fecha datetime
+        # Intento convertir la columna a fecha. Uso un try-except por si
+        # algún valor está corrupto y no se puede convertir, para que el
+        # programa me avise en lugar de fallar.
         try:
             df[columna] = pd.to_datetime(df[columna], format='%d-%m-%Y')
             print(f"📅 Columna '{columna}' convertida a fecha correctamente.")
@@ -143,8 +150,9 @@ def arreglar_fecha(df, columna):
 
 def limpiar_numeros(df, lista_columnas):
     """
-    Convierte números que vienen como texto con comas ('93,5') 
-    a números reales con puntos (93.5).
+    Algunos números venían como texto y con coma decimal ('93,5').
+    Esta función primero reemplaza la coma por un punto y luego convierte
+    la columna a un tipo numérico para poder hacer cálculos con ella.
     """
     print(f"🔢 Arreglando formato numérico en: {lista_columnas}")
     
@@ -154,7 +162,9 @@ def limpiar_numeros(df, lista_columnas):
             # (Usamos astype(str) por seguridad)
             df[col] = df[col].astype(str).str.replace(',', '.')
             
-            # 2. Convertimos a numérico (float)
+            # 2. Convertimos a numérico. El 'errors='coerce'' es muy importante:
+            # si encuentra un valor que no puede convertir (ej. una letra),
+            # lo transforma en NaN (nulo) en lugar de dar un error.
             df[col] = pd.to_numeric(df[col], errors='coerce')
             
     print("✅ Números convertidos.")

@@ -46,4 +46,4 @@ Basado en los datos, se propone al negocio:
 
 ---
 ### ✒️ Autor
-**[David morales mendez]** *Analista de Datos / Data Scientist en formación*
+**[David Morales Méndez]** *Analista de Datos / Data Scientist en formación*
