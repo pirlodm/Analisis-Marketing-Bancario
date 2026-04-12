@@ -15,10 +15,14 @@ El proyecto sigue una estructura modular profesional:
 
 * **`data/`**: Contiene los datasets procesados y limpios.
 * **`notebooks/`**: Análisis secuencial paso a paso:
-    * `01-05`: Exploración (EDA), limpieza y transformación de datos.
-    * `06_analisis_descriptivo.ipynb`: Estadísticas clave.
-    * `07_visualizacion_datos.ipynb`: **Visualización avanzada** con librería propia.
-    * `08_informe_final.ipynb`: **Informe Ejecutivo** con insights y recomendaciones de negocio.
+    * `01_eda_banco.ipynb`: Auditoría preliminar de los datos de la campaña.
+    * `02_eda_clientes.ipynb`: Auditoría de la base de datos demográfica.
+    * `03_limpieza_banco.ipynb`: Pipeline de limpieza general (Capa Silver).
+    * `04_limpieza_clientes.ipynb`: Estandarización de clientes.
+    * `05_unificacion.ipynb`: Data Blending / Cruce relacional (Inner Join).
+    * `06_analisis_descriptivo.ipynb`: Radiografía estadística (Capa Gold).
+    * `07_visualizacion_datos.ipynb`: Business Intelligence visual.
+    * `08_informe_final.ipynb`: Informe Ejecutivo y roadmap estratégico.
 * **`src/`**: Código fuente reutilizable y modular.
     * `sp_eda.py`: Funciones para el Análisis Exploratorio inicial (conteo de nulos, info general, duplicados).
     * `sp_lim.py`: Funciones de limpieza, estandarización y tratamiento de datos.

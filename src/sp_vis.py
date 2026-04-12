@@ -70,7 +70,7 @@ def plot_target_donut(df, col_target='y'):
     """
     plt.figure(figsize=(7, 7))
     conteo = df[col_target].value_counts()
-    labels = [f"No ({conteo[0]})", f"Sí ({conteo[1]})"] 
+    labels = [f"No ({conteo.iloc[0]})", f"Sí ({conteo.iloc[1]})"] 
     plt.pie(conteo, labels=labels, autopct='%1.1f%%', colors=COLORES_PRO, 
             startangle=90, pctdistance=0.85, explode=(0.05, 0.05))
     # Aquí está el truco: creo un círculo blanco.
@@ -85,7 +85,7 @@ def plot_ingresos_vs_target(df, col_x='y', col_y='income'):
     # Uso un boxplot porque es perfecto para comparar la distribución de una
     # variable numérica (ingresos) entre dos categorías (sí/no).
     # Me permite ver medianas, cuartiles y outliers de un vistazo.
-    sns.boxplot(x=col_x, y=col_y, data=df, palette=COLORES_PRO, width=0.5, linewidth=1.5)
+    sns.boxplot(x=col_x, y=col_y, hue=col_x, data=df, palette=COLORES_PRO, width=0.5, linewidth=1.5, legend=False)
     sns.despine(trim=True)
     plt.title(f"Distribución de {col_y} según decisión", fontsize=16)
     plt.xlabel("Respuesta", weight='bold')
